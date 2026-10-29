@@ -1,11 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 
-export default function Display({
-  expressao,
-  resultado,
-  temMemoria,
-  mensagem,
-}) {
+export default function Display({ expressao, resultado, temMemoria }) {
   const temResultado = resultado !== "";
 
   return (
@@ -26,10 +21,6 @@ export default function Display({
         adjustsFontSizeToFit
       >
         {temResultado ? "= " + resultado : ""}
-      </Text>
-
-      <Text style={styles.mensagem} numberOfLines={1} adjustsFontSizeToFit>
-        {mensagem}
       </Text>
     </View>
   );
@@ -67,13 +58,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#FFFFFF",
     minHeight: 62,
-  },
-
-  mensagem: {
-    color: "#34D399",
-    fontSize: 16,
-    fontStyle: "italic",
-    height: 22,
   },
 
   erro: {

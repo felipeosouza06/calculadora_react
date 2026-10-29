@@ -1,34 +1,16 @@
 import { Pressable, Text, StyleSheet } from "react-native";
 
-const CORES = [
-  "#34D399",
-  "#F87171",
-  "#60A5FA",
-  "#FBBF24",
-  "#C084FC",
-  "#FFFFFF",
-];
-
-export default function Botao({ label, onPress, tipo, bagunca }) {
-  const corAleatoria = CORES[Math.floor(Math.random() * CORES.length)];
-
+export default function Botao({ label, onPress, tipo }) {
   return (
     <Pressable
       style={({ pressed }) => [
         styles.botao,
         styles[tipo],
-        bagunca && { backgroundColor: corAleatoria },
         pressed && styles.pressionado,
       ]}
       onPress={() => onPress(label)}
     >
-      <Text
-        style={[
-          styles.texto,
-          styles["texto_" + tipo],
-          bagunca && { color: "#000000" },
-        ]}
-      >
+      <Text style={[styles.texto, styles["texto_" + tipo]]}>
         {label}
       </Text>
     </Pressable>

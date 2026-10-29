@@ -22,7 +22,7 @@ function tipoDaTecla(tecla) {
   return "numero";
 }
 
-export default function Teclado({ onPress, bagunca }) {
+export default function Teclado({ onPress }) {
   return (
     <View style={styles.teclado}>
       {LINHAS.map((linha, i) => (
@@ -33,7 +33,6 @@ export default function Teclado({ onPress, bagunca }) {
               label={tecla}
               onPress={onPress}
               tipo={tipoDaTecla(tecla)}
-              bagunca={bagunca}
             />
           ))}
         </View>

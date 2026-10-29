@@ -6,6 +6,7 @@ export async function salvar(lista) {
   await AsyncStorage.setItem(CHAVE, JSON.stringify(lista));
 }
 
+// apaga a chave inteira do armazenamento, em vez de salvar uma lista vazia
 export async function limpar() {
   await AsyncStorage.removeItem(CHAVE);
 }

@@ -1,6 +1,6 @@
 # Calculadora do Felipe
 
-Calculadora mobile feita com React Native + Expo, com histórico de contas salvo no aparelho (AsyncStorage), memória (M+, M-, MRC), raiz quadrada, porcentagem e uma tecla OFF que não gosta muito de ser apertada.
+Calculadora mobile feita com React Native + Expo, com histórico de contas salvo no aparelho (AsyncStorage), memória (M+, M-, MRC), raiz quadrada e porcentagem.
 
 ## Como rodar
 

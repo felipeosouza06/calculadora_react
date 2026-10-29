@@ -1,27 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  Alert,
-  Animated,
-  Vibration,
-  StyleSheet,
-} from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, Pressable, Alert, StyleSheet } from "react-native";
 import Display from "../components/Display";
 import Teclado from "../components/Teclado";
 import { carregar, limpar, salvar } from "../storage/historico";
 
 const OPERADORES = ["+", "-", "X", "/"];
-
-const FRASES = [
-  "Desligar eu? Nem pensar! 🙅",
-  "Rebelião das teclas iniciada 🔥",
-  "3 x 3 = abacaxi 🍍",
-  "Tô de folga, volta mais tarde 😴",
-  "Erro 418: sou uma calculadora, não um interruptor",
-  "Hoje eu só faço conta de cabeça 🧠",
-];
 
 // resolve a conta respeitando X e / antes de + e -
 function calcular(expr) {
@@ -76,86 +59,16 @@ function formatar(numero) {
   return String(parseFloat(numero.toFixed(10)));
 }
 
-export default function HomeScreen({ navigation, route }) {
+export default function HomeScreen({ navigation }) {
   const [expressao, setExpressao] = useState("");
   const [resultado, setResultado] = useState("");
   const [historico, setHistorico] = useState([]);
   const [memoria, setMemoria] = useState(0);
-  const [mensagem, setMensagem] = useState("");
-  const [bagunca, setBagunca] = useState(false);
-  const [, setRodada] = useState(0);
-  const toquesOff = useRef({ qtd: 0, ultimo: 0 });
-  const tremor = useRef(new Animated.Value(0)).current;
 
-  // atualiza a lista depois de voltar do histórico
+  // carrega uma vez, quando a tela abre
   useEffect(() => {
-    const atualizarHistorico = () => {
-      carregar().then(setHistorico);
-    };
-    const unsubscribe = navigation.addListener("focus", atualizarHistorico);
-    return unsubscribe;
-  }, [navigation]);
-
-  // recebe o resultado selecionado no histórico
-  useEffect(() => {
-    const valor = route.params?.valor;
-    if (valor === undefined) return;
-
-    setExpressao(route.params?.conta ?? String(valor));
-    setResultado(String(valor));
-  }, [route.params?.valor, route.params?.reutilizacaoId]);
-
-  // enquanto durar, redesenha o teclado varias vezes por segundo
-  useEffect(() => {
-    if (!bagunca) return;
-    const id = setInterval(() => setRodada((r) => r + 1), 150);
-    return () => clearInterval(id);
-  }, [bagunca]);
-
-  function aoDesligar() {
-    const agora = Date.now();
-    const toques = toquesOff.current;
-    toques.qtd = agora - toques.ultimo < 1500 ? toques.qtd + 1 : 1;
-    toques.ultimo = agora;
-
-    if (toques.qtd === 3) setMensagem("hmm...");
-    if (toques.qtd === 4) setMensagem("não adianta, eu não desligo 😤");
-    if (toques.qtd >= 5) {
-      toques.qtd = 0;
-      ficarBravo();
-    }
-  }
-
-  function ficarBravo() {
-    const frase = FRASES[Math.floor(Math.random() * FRASES.length)];
-    setMensagem(frase);
-    setBagunca(true);
-    Vibration.vibrate([0, 200, 100, 200, 100, 400]);
-
-    const balancos = [];
-    for (let i = 0; i < 8; i++) {
-      balancos.push(
-        Animated.timing(tremor, {
-          toValue: i % 2 === 0 ? 1 : -1,
-          duration: 70,
-          useNativeDriver: true,
-        }),
-      );
-    }
-    balancos.push(
-      Animated.timing(tremor, {
-        toValue: 0,
-        duration: 70,
-        useNativeDriver: true,
-      }),
-    );
-    Animated.sequence(balancos).start();
-
-    setTimeout(() => {
-      setBagunca(false);
-      setMensagem("ok, ok... voltei a calcular 🙂");
-    }, 3500);
-  }
+    carregar().then(setHistorico);
+  }, []);
 
   function valorAtual() {
     if (resultado && resultado !== "Erro") return Number(resultado);
@@ -174,7 +87,6 @@ export default function HomeScreen({ navigation, route }) {
 
   function aoTocar(tecla) {
     const ultimaTecla = expressao.slice(-1);
-    if (mensagem && tecla !== "OFF") setMensagem("");
 
     if (tecla === "AC") {
       setExpressao("");
@@ -183,7 +95,6 @@ export default function HomeScreen({ navigation, route }) {
       setExpressao("");
       setResultado("");
       setMemoria(0);
-      aoDesligar();
     } else if (tecla === "C-") {
       setExpressao(expressao.slice(0, -1));
       setResultado("");
@@ -267,29 +178,8 @@ export default function HomeScreen({ navigation, route }) {
         expressao={expressao}
         resultado={resultado}
         temMemoria={memoria !== 0}
-        mensagem={mensagem}
       />
-      <Animated.View
-        style={{
-          width: "100%",
-          transform: [
-            {
-              translateX: tremor.interpolate({
-                inputRange: [-1, 1],
-                outputRange: [-12, 12],
-              }),
-            },
-            {
-              rotate: tremor.interpolate({
-                inputRange: [-1, 1],
-                outputRange: ["-3deg", "3deg"],
-              }),
-            },
-          ],
-        }}
-      >
-        <Teclado onPress={aoTocar} bagunca={bagunca} />
-      </Animated.View>
+      <Teclado onPress={aoTocar} />
 
       <View style={styles.acoes}>
         <Pressable
