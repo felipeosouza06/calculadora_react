@@ -65,10 +65,13 @@ export default function HomeScreen({ navigation }) {
   const [historico, setHistorico] = useState([]);
   const [memoria, setMemoria] = useState(0);
 
-  // carrega uma vez, quando a tela abre
+  // recarrega toda vez que a tela ganha foco (ex: voltando do histórico)
   useEffect(() => {
-    carregar().then(setHistorico);
-  }, []);
+    const cancelar = navigation.addListener("focus", () => {
+      carregar().then(setHistorico);
+    });
+    return cancelar;
+  }, [navigation]);
 
   function valorAtual() {
     if (resultado && resultado !== "Erro") return Number(resultado);

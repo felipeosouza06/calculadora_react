@@ -1,4 +1,6 @@
-import { View, FlatList, Text, StyleSheet } from "react-native";
+import { useState } from "react";
+import { View, FlatList, Text, Pressable, StyleSheet } from "react-native";
+import { salvar } from "../storage/historico";
 
 // o id do item e o Date.now() de quando a conta foi feita
 function formatarData(id) {
@@ -11,25 +13,43 @@ function formatarData(id) {
 }
 
 export default function HistoricoScreen({ route }) {
-  const { historico } = route.params;
+  // a lista vira estado para a tela atualizar quando uma conta for excluida
+  const [lista, setLista] = useState(route.params.historico);
+
+  // filter cria uma lista nova, sem mexer na que ja esta no estado
+  async function excluir(id) {
+    const nova = lista.filter((item) => item.id !== id);
+    setLista(nova);
+    await salvar(nova);
+  }
 
   return (
     <FlatList
       style={styles.lista}
       contentContainerStyle={styles.conteudo}
-      data={historico}
+      data={lista}
       keyExtractor={(item) => item.id}
       ListHeaderComponent={
-        historico.length > 0 && (
+        lista.length > 0 && (
           <Text style={styles.titulo}>
-            {historico.length} {historico.length === 1 ? "conta" : "contas"}{" "}
-            salvas
+            {lista.length} {lista.length === 1 ? "conta" : "contas"} salvas
           </Text>
         )
       }
       renderItem={({ item }) => (
         <View style={styles.card}>
-          <Text style={styles.data}>{formatarData(item.id)}</Text>
+          <View style={styles.topo}>
+            <Text style={styles.data}>{formatarData(item.id)}</Text>
+            <Pressable
+              style={({ pressed }) => [
+                styles.excluir,
+                pressed && styles.pressionado,
+              ]}
+              onPress={() => excluir(item.id)}
+            >
+              <Text style={styles.textExcluir}>Excluir</Text>
+            </Pressable>
+          </View>
           <Text style={styles.conta}>{item.conta}</Text>
           <Text style={styles.resultado}>= {item.resultado}</Text>
         </View>
@@ -71,10 +91,34 @@ const styles = StyleSheet.create({
     borderLeftColor: "#34D399",
   },
 
+  topo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+
   data: {
     color: "#737373",
     fontSize: 12,
-    marginBottom: 6,
+  },
+
+  excluir: {
+    borderWidth: 1,
+    borderColor: "#7F1D1D",
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+  },
+
+  textExcluir: {
+    color: "#F87171",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  pressionado: {
+    opacity: 0.6,
   },
 
   conta: {
