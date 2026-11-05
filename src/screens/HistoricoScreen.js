@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { View, FlatList, Text, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  FlatList,
+  Text,
+  Pressable,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
 import { salvar } from "../storage/historico";
 
 // o id do item e o Date.now() de quando a conta foi feita
@@ -12,7 +19,7 @@ function formatarData(id) {
   return `${dia}/${mes} às ${hora}:${minuto}`;
 }
 
-export default function HistoricoScreen({ route }) {
+export default function HistoricoScreen({ route, navigation }) {
   // a lista vira estado para a tela atualizar quando uma conta for excluida
   const [lista, setLista] = useState(route.params.historico);
 
@@ -21,6 +28,12 @@ export default function HistoricoScreen({ route }) {
     const nova = lista.filter((item) => item.id !== id);
     setLista(nova);
     await salvar(nova);
+  }
+
+  // popTo volta para a Home que ja existe, em vez de empilhar outra.
+  // o "toque" muda a cada vez, entao tocar na mesma conta de novo tambem funciona
+  function reutilizar(item) {
+    navigation.popTo("Home", { valor: item.resultado, toque: Date.now() });
   }
 
   return (
@@ -37,7 +50,11 @@ export default function HistoricoScreen({ route }) {
         )
       }
       renderItem={({ item }) => (
-        <View style={styles.card}>
+        <TouchableOpacity
+          style={styles.card}
+          activeOpacity={0.7}
+          onPress={() => reutilizar(item)}
+        >
           <View style={styles.topo}>
             <Text style={styles.data}>{formatarData(item.id)}</Text>
             <Pressable
@@ -52,7 +69,7 @@ export default function HistoricoScreen({ route }) {
           </View>
           <Text style={styles.conta}>{item.conta}</Text>
           <Text style={styles.resultado}>= {item.resultado}</Text>
-        </View>
+        </TouchableOpacity>
       )}
       ListEmptyComponent={
         <View style={styles.vazio}>
