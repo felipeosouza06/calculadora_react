@@ -59,7 +59,7 @@ function formatar(numero) {
   return String(parseFloat(numero.toFixed(10)));
 }
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation, route }) {
   const [expressao, setExpressao] = useState("");
   const [resultado, setResultado] = useState("");
   const [historico, setHistorico] = useState([]);
@@ -72,6 +72,17 @@ export default function HomeScreen({ navigation }) {
     });
     return cancelar;
   }, [navigation]);
+
+  // quando volta do histórico com uma conta escolhida, coloca o resultado no display.
+  // observa o "toque" (e nao o valor) para reagir mesmo se for a mesma conta
+  const valorRecebido = route.params?.valor;
+  const toque = route.params?.toque;
+  useEffect(() => {
+    if (valorRecebido) {
+      setExpressao(valorRecebido);
+      setResultado("");
+    }
+  }, [toque]);
 
   function valorAtual() {
     if (resultado && resultado !== "Erro") return Number(resultado);
